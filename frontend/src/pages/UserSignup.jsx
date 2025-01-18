@@ -1,34 +1,47 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { UserDataContext } from "../context/UserContext";
 
 const UserSignup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [userData, SetUserData] = useState({})
+  //   const [ userData, setUserData ] = useState({})
+
+  const navigate = useNavigate();
+
+  const { setUser } = useContext(UserDataContext);
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    SetUserData({
-        fullName:{
-            firstName : firstName,
-            lastName : lastName
-        },
-        email: email,
-        password: password
-    })
-    console.log(userData)
-   
+    const newUser = {
+      fullname: {
+        firstname: firstName,
+        lastname: lastName,
+      },
+      email: email,
+      password: password,
+    };
 
-    
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/users/register`,
+      newUser
+    );
+
+    if (response.status === 201) {
+      const data = response.data;
+      setUser(data.user);
+      localStorage.setItem("token", data.token);
+      navigate("/home");
+    }
 
     setEmail("");
     setFirstName("");
     setLastName("");
     setPassword("");
   };
-
   return (
     <div>
       <div className="p-7 h-screen flex flex-col justify-between">
@@ -44,7 +57,7 @@ const UserSignup = () => {
               submitHandler(e);
             }}
           >
-            <h3 className="text-lg font-medium mb-2">What is your name</h3>
+            <h3 className="text-lg w-1/2  font-medium mb-2">Whats your name</h3>
             <div className="flex gap-4 mb-7">
               <input
                 required
@@ -53,9 +66,8 @@ const UserSignup = () => {
                 placeholder="First name"
                 value={firstName}
                 onChange={(e) => {
-                  setFirstName(e.target.value)
+                  setFirstName(e.target.value);
                 }}
-                
               />
               <input
                 required
@@ -64,18 +76,17 @@ const UserSignup = () => {
                 placeholder="Last name"
                 value={lastName}
                 onChange={(e) => {
-                  setLastName(e.target.value)
+                  setLastName(e.target.value);
                 }}
-                
               />
             </div>
 
-            <h3 className="text-lg font-medium mb-2">What is your email</h3>
+            <h3 className="text-lg font-medium mb-2">Whats your email</h3>
             <input
               required
               value={email}
               onChange={(e) => {
-                setEmail(e.target.value)
+                setEmail(e.target.value);
               }}
               className="bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base"
               type="email"
@@ -88,14 +99,15 @@ const UserSignup = () => {
               className="bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base"
               value={password}
               onChange={(e) => {
-                setPassword(e.target.value)
+                setPassword(e.target.value);
               }}
-              required type="password"
+              required
+              type="password"
               placeholder="password"
             />
 
             <button className="bg-[#111] text-white font-semibold mb-3 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base">
-              Login
+              Create account
             </button>
           </form>
           <p className="text-center">
